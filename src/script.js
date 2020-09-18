@@ -14,6 +14,9 @@ btcomp.style.color = blue;
 var btapagar = document.getElementById('apg');
 
 var flag_apg = false;
+var simp = true;
+var reg = false;
+var comp = false;
 const canvas = document.getElementById('canvas');
 const txtValue = document.getElementById('txt');
 const ctx = canvas.getContext('2d');
@@ -48,6 +51,7 @@ class Vertice {
         if(!this.arestas.includes(v)) {
             ctx.beginPath();
             if(this.text == v.text) {
+                simp = false;
                 ctx.arc(this.x + 30, this.y + 30, 30, 0, 2 * Math.PI);
                 ctx.stroke();
                 if(txtValue.value) {
@@ -131,7 +135,6 @@ function setMA() {
     var t = document.createElement('th');
     t.innerText = 'MA';
     thead.appendChild(t);
-    //var c = 0;
     vertices.forEach(function(v) {
         var th = document.createElement('th');
         th.innerText = v.text;
@@ -164,14 +167,123 @@ function setMI() {
         td.setAttribute('class', 'rbox');
         linhas[i].appendChild(td);
         for(let j = 0; j < cont; j++) {
-            console.log(vertices[j]);
+            //console.log(vertices[j]);
             let res = vertices[j].checkAresta(td.innerText);
             if(res != '*') {
                 let t = document.createElement('td');
-                t.innerText = "(" + vertices[j].text + "," + res + ")";
+                if(txtValue.value)
+                    t.innerText = "(" + vertices[j].text + "," + res + ")";
+                else
+                    t.innerText = vertices[j].text;
                 linhas[i].appendChild(t);
             }
         }
+    }
+}
+
+function getLA(v1, v2, arestas = []) {
+    var flag = false;
+    arestas.forEach(function(a) {
+        if(a.v1 == v1.text && a.v2 == v2.text) 
+            flag = true;
+        if(a.v1 == v2.text && a.v2 == v1.text)
+            flag = true;            
+    });
+    return flag;
+}
+
+function setLA() {
+    var tbody = document.querySelector('table#la tbody');
+    var x = 0;
+    tbody.innerHTML = "";
+    var arestas = [];
+    vertices.forEach(function(v) {
+        v.arestas.forEach(function(ve) {
+            let obj = {
+                v1: v.text,
+                v2: ve.text
+            }
+            let obj_rev = {
+                v1: v.text,
+                v2: ve.text
+            }
+            if(getLA(v, ve, arestas) == false) {
+                arestas.push(obj);
+                arestas.push(obj_rev);
+                let linha = document.createElement('tr');
+                let h = document.createElement('td');
+                h.setAttribute('class', 'rbox');
+                h.innerText = "" + x;
+                x++;
+                let b1 = document.createElement('td');
+                b1.innerText = v.text;
+                let b2 = document.createElement('td');
+                b2.innerText = ve.text;
+                
+                linha.appendChild(h);
+                linha.appendChild(b1);
+                linha.appendChild(b2);
+                if(txtValue.value) {
+                    let b3 = document.createElement('td');
+                    b3.innerText = v.checkAresta(ve.text);
+                    linha.appendChild(b3);
+                }
+                tbody.appendChild(linha);
+            }
+        })
+    });
+}
+
+function checkSimples() {
+    if(simp) {
+        btsimp.style.backgroundColor = blue;
+        btsimp.style.border = "1px solid " + blue;
+        btsimp.style.color = 'white';
+    }
+    else {
+        btsimp.style.backgroundColor = 'white';
+        btsimp.style.border = "1px solid " + blue;
+        btsimp.style.color = blue;
+    }
+}
+
+function checkRegular() {
+    var c = null;
+    var flag = false;
+    vertices.forEach(function(v) {
+        if(c == null)
+            c = v.arestas.length;
+        else 
+            if(v.arestas.length != c)
+                flag = true;
+    });
+    if(!flag) {
+        btreg.style.backgroundColor = blue;
+        btreg.style.border = "1px solid " + blue;
+        btreg.style.color = 'white';
+    }
+    else {
+        btreg.style.backgroundColor = 'white';
+        btreg.style.border = "1px solid " + blue;
+        btreg.style.color = blue;
+    }    
+}
+
+function checkCompleto() {
+    var flag = false;
+    vertices.forEach(function(v) {
+        if(v.arestas.length != cont - 1)
+            flag = true;
+    });
+    if(!flag) {
+        btcomp.style.backgroundColor = blue;
+        btcomp.style.border = "1px solid " + blue;
+        btcomp.style.color = 'white';
+    }
+    else {
+        btcomp.style.backgroundColor = 'white';
+        btcomp.style.border = "1px solid " + blue;
+        btcomp.style.color = blue;
     }
 }
 
@@ -189,8 +301,6 @@ canvas.addEventListener('mousedown', function(event) {
         cont++;
     }
     if(click != false) {
-        console.log(click.values);
-        console.log(click.arestas);
         if(clicked == null) {
             clicked = click;
             clicked.render('limegreen');
@@ -203,6 +313,10 @@ canvas.addEventListener('mousedown', function(event) {
     }
     setMA();
     setMI();
+    setLA();
+    checkSimples();
+    checkRegular();
+    checkCompleto();
 }, false);
 
 btapagar.addEventListener('click', function() {
