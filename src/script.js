@@ -1,3 +1,4 @@
+// Manipulação da DOM
 const blue = '#0B6FA4';
 var btreg = document.getElementById('reg');
 btreg.style.backgroundColor = 'white';
@@ -11,22 +12,49 @@ var btcomp = document.getElementById('comp');
 btcomp.style.backgroundColor = 'white';
 btcomp.style.border = "1px solid " + blue;
 btcomp.style.color = blue;
-var btapagar = document.getElementById('apg');
+const btreset = document.getElementById('reset');
+const btcolor = document.getElementById('coloring');
+const closepop = document.getElementById('closepopup');
+const toogle = document.getElementById('myonoffswitch');
+toogle.addEventListener('click', function(event) {
+    if(digraf == true)
+        digraf = false;
+    else
+        digraf = true;
+    cont = 0;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    vertices = [];
+    setMA();
+    setMI();
+    setLA();
+    checkSimples();
+    checkRegular();
+    checkCompleto();
+});
+//
 
+//function DFS()
+
+
+// Declaração de variávei globais
 var flag_apg = false;
+var digraf = false;
 var simp = true;
 var reg = false;
 var comp = false;
 const canvas = document.getElementById('canvas');
-const txtValue = document.getElementById('txt');
+const txtValue = document.getElementById('inp');
 const ctx = canvas.getContext('2d');
-const vertices = [];
+var vertices = [];
 const vert_text = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 var cont = 0;
-canvas.width = 1600;
+// Remodelação do Canvas para as retas ficarem mais visíveis
+canvas.width = 1600; 
 canvas.height = 800;
+//
 
-class Vertice {
+
+class Vertice { //Classe vértice, armazena cada aresta do grafo
     constructor(x, y) {
         this.x = x;
         this.y = y;
@@ -35,19 +63,19 @@ class Vertice {
         this.text = vert_text[cont] + "";
     }
 
-    render(color) {
+    render(color) { // renderiza do vertice na tela
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 30, 0, 2 * Math.PI);
+        ctx.arc(this.x, this.y, 25, 0, 2 * Math.PI);
         ctx.fillStyle = color;
-        ctx.font = "35px Arial";
+        ctx.font = "30px Arial";
         ctx.stroke();
         ctx.fill();
         ctx.fillStyle = "white";
-        ctx.fillText(this.text, this.x - 10, this.y + 13);
+        ctx.fillText(this.text, this.x - 8, this.y + 11);
         ctx.closePath();
     }
 
-    pushAresta(v) {
+    pushAresta(v, digraf = false) { // Insere uma conexão de vertice (aresta) com o vertice this e já exibe em tela
         if(!this.arestas.includes(v)) {
             ctx.beginPath();
             if(this.text == v.text) {
@@ -67,9 +95,34 @@ class Vertice {
                 ctx.lineWidth = 2;
                 ctx.moveTo(this.x, this.y);
                 ctx.lineTo(v.x, v.y);    
-                ctx.stroke();
-                ctx.fill();
+                
+                if(digraf == true) {
 
+                    let angle = Math.atan2((v.y - this.y), (v.x - this.x)) - Math.PI / 2.0;
+                    let sin = Math.sin(angle);
+                    let cos = Math.cos(angle);
+
+                    let x1 = (-1.0 / 2.0 * cos + Math.sqrt(3) / 2 * sin) * 60.0 + v.x;
+                    let y1 = (-1.0 / 2.0 * sin - Math.sqrt(3) / 2 * cos) * 60.0 + v.y;
+                    
+                    let x2 = (1.0 / 2.0 * cos + Math.sqrt(3) / 2 * sin) * 60.0 + v.x;
+                    let y2 = (1.0 / 2.0 * sin - Math.sqrt(3) / 2 * cos) * 60.0 + v.y;
+                    
+                    let arr = [];
+                    
+                    
+                    x1 = parseInt(x1);
+                    y1 = parseInt(y1);
+                    x2 = parseInt(x2);
+                    y2 = parseInt(y2);
+
+                    ctx.lineTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.lineTo(v.x, v.y);
+                    ctx.fillStyle = "#000000";
+                }
+                ctx.fill();
+                ctx.stroke();
                 if(txtValue.value) {
                     var X = (this.x + v.x) / 2;
                     var Y = (this.y + v.y) / 2;
@@ -102,10 +155,9 @@ class Vertice {
             });
             return false;
         }
-            
     }
 
-    checkAresta(info) {
+    checkAresta(info) { // Checa se tem aresta entre a aresta info
         var flag = '*';
         for(var i = 0; i < this.arestas.length; i++) {
             if(this.arestas[i].text == info)
@@ -115,7 +167,8 @@ class Vertice {
     }
 }
 
-function getTarget(pos) {
+
+function getTarget(pos) {  // Return o valor do vértice clicado pelo mouse, caso contrário retorna false
     var flag = false;
     vertices.forEach(function(v){
         if(pos.x > v.x - 30 && pos.x < v.x + 30 && pos.y > v.y - 30 && pos.y < v.y + 30) {
@@ -125,7 +178,7 @@ function getTarget(pos) {
     return flag;
 }
 
-function setMA() {
+function setMA() {  // Constrói a Matriz Adjacente do grafo
     var linhas = document.querySelectorAll('table#ma tbody tr');
     linhas.forEach(function(a) {
         a.innerHTML = "";
@@ -156,7 +209,7 @@ function setMA() {
     }
 }
 
-function setMI() {
+function setMI() {  // Constrói a Matriz Incidente do grafo
     var linhas = document.querySelectorAll('table#mi tbody tr');
     linhas.forEach(function(l) {
         l.innerHTML = "";
@@ -192,7 +245,7 @@ function getLA(v1, v2, arestas = []) {
     return flag;
 }
 
-function setLA() {
+function setLA() {  // Constroi a Lista de Adjacencia (Edge List)
     var tbody = document.querySelector('table#la tbody');
     var x = 0;
     tbody.innerHTML = "";
@@ -234,7 +287,7 @@ function setLA() {
     });
 }
 
-function checkSimples() {
+function checkSimples() {   //Checa se o grafo é simples
     if(simp) {
         btsimp.style.backgroundColor = blue;
         btsimp.style.border = "1px solid " + blue;
@@ -247,7 +300,7 @@ function checkSimples() {
     }
 }
 
-function checkRegular() {
+function checkRegular() {   //Checa se o grafo é regular
     var c = null;
     var flag = false;
     vertices.forEach(function(v) {
@@ -269,7 +322,7 @@ function checkRegular() {
     }    
 }
 
-function checkCompleto() {
+function checkCompleto() {  //Checa se o grafo é completo
     var flag = false;
     vertices.forEach(function(v) {
         if(v.arestas.length != cont - 1)
@@ -288,7 +341,7 @@ function checkCompleto() {
 }
 
 var clicked = null;
-canvas.addEventListener('mousedown', function(event) {
+canvas.addEventListener('mousedown', function(event) { //Evento de click do mouse (Função de disparo de todos os eventos)
     var react = canvas.getBoundingClientRect();
     var pos = {
         x: (event.clientX - react.left) * 2,
@@ -306,7 +359,7 @@ canvas.addEventListener('mousedown', function(event) {
             clicked.render('limegreen');
         }
         else {
-            if(clicked.pushAresta(click) == true);
+            if(clicked.pushAresta(click, digraf) == true && digraf == false)
                 click.pushAresta(clicked);
             clicked = null;
         }
@@ -319,15 +372,24 @@ canvas.addEventListener('mousedown', function(event) {
     checkCompleto();
 }, false);
 
-btapagar.addEventListener('click', function() {
-    if(!flag_apg) {
-        flag_apg = true;
-        btapagar.setAttribute('id', 'apg-active');
-        btapagar.innerText = 'Pronto';
-    }
-    else {
-        flag_apg = false;
-        btapagar.setAttribute('id', 'apg');
-        btapagar.innerText = 'Apagar';
-    }
+btreset.addEventListener('click', function(event) {
+    cont = 0;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    vertices = [];
+    setMA();
+    setMI();
+    setLA();
+    checkSimples();
+    checkRegular();
+    checkCompleto();
+});
+
+btcolor.addEventListener('click', function(event) {
+    var pop = document.getElementsByClassName('popup');
+    pop[0].style.visibility = 'visible';
+});
+
+closepop.addEventListener('click', function(event) {
+    var pop = document.getElementsByClassName('popup');
+    pop[0].style.visibility = 'hidden';
 });

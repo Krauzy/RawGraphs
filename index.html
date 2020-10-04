@@ -13,12 +13,58 @@
         <h2>Raw Graphs</h2>
     </header>
     <main id="main">
+        <div class="popup">
+            <table class="tab">
+                <thead>
+                    <th>FILA</th>
+                </thead>
+                <tbody>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                </tbody>
+            </table>
+            <!---->
+            <table class="tab">
+                <thead>
+                    <th>TABELA DE CORES</th>
+                </thead>
+                <tbody>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr></tr>
+                </tbody>
+            </table>
+            <button id="closepopup">X</button>
+        </div>
+        <div class="onoffswitch">
+            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" tabindex="0" checked>
+            <label class="onoffswitch-label" for="myonoffswitch">
+                <span class="onoffswitch-inner"></span>
+                <span class="onoffswitch-switch"></span>
+            </label>
+        </div>
         <div id="pane">
             <canvas id="canvas">Seu navegador não possui suporte para o Canvas®</canvas>
         </div>
         <div id="options">
-            <button id="apg">Apagar</button>
-            <input id="txt" type="text" placeholder="Valor da Aresta"/>
+            <button id="coloring">COLORIR</button>
+            <button id="reset">RESET</button>
+            <input id="inp" type="text" placeholder="Valor da Aresta"/>
             <button id="reg">Regular</button>
             <button id="simp">Simples</button>
             <button id="comp">Completo</button>
