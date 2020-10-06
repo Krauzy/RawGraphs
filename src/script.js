@@ -1,5 +1,17 @@
 // Manipulação da DOM
 const blue = '#0B6FA4';
+const colorlist = [
+    '#5f0f40',
+    '#8338ec',
+    '#fb8b24', 
+    '#9a031e',     
+    '#0f4c5c',     
+    '#161a1d', 
+    '#ee6c4d', 
+    '#f20089', 
+    '#cca000', 
+    '#b56576'
+];
 var btreg = document.getElementById('reg');
 btreg.style.backgroundColor = 'white';
 btreg.style.border = "1px solid " + blue;
@@ -16,6 +28,8 @@ const btreset = document.getElementById('reset');
 const btcolor = document.getElementById('coloring');
 const closepop = document.getElementById('closepopup');
 const toogle = document.getElementById('myonoffswitch');
+const tabfila = document.querySelector('table#fila tbody');
+const tabcolor = document.querySelector('table#colors tbody');
 toogle.addEventListener('click', function(event) {
     if(digraf == true)
         digraf = false;
@@ -33,9 +47,6 @@ toogle.addEventListener('click', function(event) {
 });
 //
 
-//function DFS()
-
-
 // Declaração de variávei globais
 var flag_apg = false;
 var digraf = false;
@@ -48,11 +59,134 @@ const ctx = canvas.getContext('2d');
 var vertices = [];
 const vert_text = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 var cont = 0;
+
 // Remodelação do Canvas para as retas ficarem mais visíveis
 canvas.width = 1600; 
 canvas.height = 800;
 //
 
+function Coloring() { // Coloração
+    tabfila.innerHTML = '';
+    let colors = [];
+    vertices.forEach(function(v) {
+        let line = [];
+        line.push(v.text);
+        colors.push(line);
+    });
+    let order = vertices.copyWithin(vertices.length, 0);
+    order.sort(function(a, b) {
+        return b.grau - a.grau;
+    });
+    let fila = [];
+    let last = [];    
+    console.clear();
+    order.forEach(function(v) {
+        let aresta = v.arestas;
+        if(!last.includes(v)) {
+            fila.push(v);
+            last.push(v);
+        }
+        aresta.sort(function(a, b) {
+            return a.index - b.index;
+        });
+        aresta.forEach(function(ve) {
+            if(!last.includes(ve)) {
+                fila.push(ve);
+                last.push(ve);
+            }
+        });
+        addFila(fila);
+        let V = fila.shift();
+        let arr = [];
+        let index = V.index;
+        let a = V.arestas;
+        a.forEach(function(vv) {
+            arr.push(vv.text);
+        });
+        //
+        let mov = 0;
+        if(colors[index].includes('*') == false) {
+            for(let i = 0; i < colors.length; i++) {
+                if(colors[i][0] == arr[mov]) {
+                    colors[i].push('x');
+                    mov++;
+                }
+                else {
+                    if(i == index) {
+                        colors[i].push(colors[i].length - 1);
+                    }
+                    else
+                        colors[i].push('*');
+                }  
+            }
+        }
+        else {
+            let id = parseInt(colors[index].indexOf('*'));
+            colors[index][id] = id - 1;
+            for(let i = 0; i < colors.length; i++) {
+                if(colors[i][0] == arr[mov]) {
+                    colors[i][id] = 'x';
+                    mov++;
+                }
+            }
+        }
+        
+    });
+    for(let i = 0; i < colors.length; i++) {
+        for(let j = 0; j < colors[i].length; j++) {
+            if(colors[i][j] == '*')
+                colors[i][j] = 'x';
+        }
+    }
+    console.clear();
+    colors.forEach(function(c) {
+        console.log(c.map(function(value, index) {
+            return value;
+        }));
+    });
+    vertices = vertices.sort(function(a, b) {
+        return a.index - b.index;
+    });
+    setColorList(colors);
+    for(let i = 0; i < colors.length; i++) {
+        let cor;
+        for(let x = 1; x < colors[i].length; x++) {
+            if(colors[i][x] != 'x') {
+                console.log('[' + i +'][' + x + ']: ' + colors[i][x]);
+                cor = parseInt(colors[i][x]);
+            }
+                
+        }
+        vertices[i].render(colorlist[cor]);
+    }
+}
+
+function addFila(array) {
+    let linha = document.createElement('tr');
+    array.forEach(function(it) {
+        let td = document.createElement('td');
+        td.innerText = it.text;
+        linha.appendChild(td);
+    });
+    tabfila.appendChild(linha);
+}
+
+function setColorList(colors) {
+    tabcolor.innerHTML = '';
+    colors.forEach(function(l) {
+        let linha = document.createElement('tr'); 
+        let td = document.createElement('td');
+        td.setAttribute('class', 'rbox');
+        td.innerText = l[0];
+        linha.appendChild(td);
+        for(let i = 1; i < l.length; i++) {
+            let t = document.createElement('td');
+            t.innerText = l[i];
+            linha.appendChild(t);
+        }
+        tabcolor.appendChild(linha);
+    });
+}
 
 class Vertice { //Classe vértice, armazena cada aresta do grafo
     constructor(x, y) {
@@ -61,6 +195,8 @@ class Vertice { //Classe vértice, armazena cada aresta do grafo
         this.arestas = [];
         this.values = [];
         this.text = vert_text[cont] + "";
+        this.index = parseInt(this.text);
+        this.grau = 0;
     }
 
     render(color) { // renderiza do vertice na tela
@@ -145,7 +281,7 @@ class Vertice { //Classe vértice, armazena cada aresta do grafo
             vertices.forEach(function(v) {
                 v.render(blue);
             });
-                       
+            this.grau++;
             ctx.closePath();
             return true;
         }
@@ -210,7 +346,7 @@ function setMA() {  // Constrói a Matriz Adjacente do grafo
 }
 
 function setMI() {  // Constrói a Matriz Incidente do grafo
-    var linhas = document.querySelectorAll('table#mi tbody tr');
+    let linhas = document.querySelectorAll('table#mi tbody tr');
     linhas.forEach(function(l) {
         l.innerHTML = "";
     });
@@ -220,7 +356,6 @@ function setMI() {  // Constrói a Matriz Incidente do grafo
         td.setAttribute('class', 'rbox');
         linhas[i].appendChild(td);
         for(let j = 0; j < cont; j++) {
-            //console.log(vertices[j]);
             let res = vertices[j].checkAresta(td.innerText);
             if(res != '*') {
                 let t = document.createElement('td');
@@ -364,6 +499,9 @@ canvas.addEventListener('mousedown', function(event) { //Evento de click do mous
             clicked = null;
         }
     }
+    vertices.sort(function(a, b) {
+        return a.index - b.index;
+    });
     setMA();
     setMI();
     setLA();
@@ -376,6 +514,8 @@ btreset.addEventListener('click', function(event) {
     cont = 0;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     vertices = [];
+    tabcolor.innerHTML = "";
+    tabfila.innerHTML = "";
     setMA();
     setMI();
     setLA();
@@ -387,6 +527,7 @@ btreset.addEventListener('click', function(event) {
 btcolor.addEventListener('click', function(event) {
     var pop = document.getElementsByClassName('popup');
     pop[0].style.visibility = 'visible';
+    Coloring();
 });
 
 closepop.addEventListener('click', function(event) {

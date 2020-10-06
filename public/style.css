@@ -320,6 +320,10 @@ button#coloring:hover {
     }
 }
 
+#fila, #colors {
+    margin-bottom: 10%;
+}
+
 .popup {
     position: fixed;
     width: auto;
@@ -327,8 +331,9 @@ button#coloring:hover {
     background-color: white;
     border-radius: 5px;
     border: 1px solid  #0B6FA4;
-    display: inline-flex;
+    display: inline-block;
     margin-left: 15px;
+    margin-top: 0;
     z-index: 3;
     padding: 15px;
     visibility: hidden;
@@ -337,8 +342,8 @@ button#coloring:hover {
 #closepopup {
     padding: 5;
     margin:0 auto;
-    margin-bottom: 20%;
     background-color: white;
     color: black;
     cursor: pointer;
+    right: 0;
 }

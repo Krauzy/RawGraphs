@@ -8,6 +8,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 // Manipulação da DOM
 var blue = '#0B6FA4';
+var colorlist = ['#5f0f40', '#8338ec', '#fb8b24', '#9a031e', '#0f4c5c', '#161a1d', '#ee6c4d', '#f20089', '#cca000', '#b56576'];
 var btreg = document.getElementById('reg');
 btreg.style.backgroundColor = 'white';
 btreg.style.border = "1px solid " + blue;
@@ -24,6 +25,8 @@ var btreset = document.getElementById('reset');
 var btcolor = document.getElementById('coloring');
 var closepop = document.getElementById('closepopup');
 var toogle = document.getElementById('myonoffswitch');
+var tabfila = document.querySelector('table#fila tbody');
+var tabcolor = document.querySelector('table#colors tbody');
 toogle.addEventListener('click', function (event) {
   if (digraf == true) digraf = false;else digraf = true;
   cont = 0;
@@ -36,7 +39,6 @@ toogle.addEventListener('click', function (event) {
   checkRegular();
   checkCompleto();
 }); //
-//function DFS()
 // Declaração de variávei globais
 
 var flag_apg = false;
@@ -54,6 +56,134 @@ var cont = 0; // Remodelação do Canvas para as retas ficarem mais visíveis
 canvas.width = 1600;
 canvas.height = 800; //
 
+function Coloring() {
+  // Coloração
+  tabfila.innerHTML = '';
+  var colors = [];
+  vertices.forEach(function (v) {
+    var line = [];
+    line.push(v.text);
+    colors.push(line);
+  });
+  var order = vertices.copyWithin(vertices.length, 0);
+  order.sort(function (a, b) {
+    return b.grau - a.grau;
+  });
+  var fila = [];
+  var last = [];
+  console.clear();
+  order.forEach(function (v) {
+    var aresta = v.arestas;
+
+    if (!last.includes(v)) {
+      fila.push(v);
+      last.push(v);
+    }
+
+    aresta.sort(function (a, b) {
+      return a.index - b.index;
+    });
+    aresta.forEach(function (ve) {
+      if (!last.includes(ve)) {
+        fila.push(ve);
+        last.push(ve);
+      }
+    });
+    addFila(fila);
+    var V = fila.shift();
+    var arr = [];
+    var index = V.index;
+    var a = V.arestas;
+    a.forEach(function (vv) {
+      arr.push(vv.text);
+    }); //
+
+    var mov = 0;
+
+    if (colors[index].includes('*') == false) {
+      for (var i = 0; i < colors.length; i++) {
+        if (colors[i][0] == arr[mov]) {
+          colors[i].push('x');
+          mov++;
+        } else {
+          if (i == index) {
+            colors[i].push(colors[i].length - 1);
+          } else colors[i].push('*');
+        }
+      }
+    } else {
+      var id = parseInt(colors[index].indexOf('*'));
+      colors[index][id] = id - 1;
+
+      for (var _i = 0; _i < colors.length; _i++) {
+        if (colors[_i][0] == arr[mov]) {
+          colors[_i][id] = 'x';
+          mov++;
+        }
+      }
+    }
+  });
+
+  for (var i = 0; i < colors.length; i++) {
+    for (var j = 0; j < colors[i].length; j++) {
+      if (colors[i][j] == '*') colors[i][j] = 'x';
+    }
+  }
+
+  console.clear();
+  colors.forEach(function (c) {
+    console.log(c.map(function (value, index) {
+      return value;
+    }));
+  });
+  vertices = vertices.sort(function (a, b) {
+    return a.index - b.index;
+  });
+  setColorList(colors);
+
+  for (var _i2 = 0; _i2 < colors.length; _i2++) {
+    var cor = void 0;
+
+    for (var x = 1; x < colors[_i2].length; x++) {
+      if (colors[_i2][x] != 'x') {
+        console.log('[' + _i2 + '][' + x + ']: ' + colors[_i2][x]);
+        cor = parseInt(colors[_i2][x]);
+      }
+    }
+
+    vertices[_i2].render(colorlist[cor]);
+  }
+}
+
+function addFila(array) {
+  var linha = document.createElement('tr');
+  array.forEach(function (it) {
+    var td = document.createElement('td');
+    td.innerText = it.text;
+    linha.appendChild(td);
+  });
+  tabfila.appendChild(linha);
+}
+
+function setColorList(colors) {
+  tabcolor.innerHTML = '';
+  colors.forEach(function (l) {
+    var linha = document.createElement('tr');
+    var td = document.createElement('td');
+    td.setAttribute('class', 'rbox');
+    td.innerText = l[0];
+    linha.appendChild(td);
+
+    for (var i = 1; i < l.length; i++) {
+      var t = document.createElement('td');
+      t.innerText = l[i];
+      linha.appendChild(t);
+    }
+
+    tabcolor.appendChild(linha);
+  });
+}
+
 var Vertice = /*#__PURE__*/function () {
   //Classe vértice, armazena cada aresta do grafo
   function Vertice(x, y) {
@@ -64,6 +194,8 @@ var Vertice = /*#__PURE__*/function () {
     this.arestas = [];
     this.values = [];
     this.text = vert_text[cont] + "";
+    this.index = parseInt(this.text);
+    this.grau = 0;
   }
 
   _createClass(Vertice, [{
@@ -145,6 +277,7 @@ var Vertice = /*#__PURE__*/function () {
         vertices.forEach(function (v) {
           v.render(blue);
         });
+        this.grau++;
         ctx.closePath();
         return true;
       } else {
@@ -227,7 +360,6 @@ function setMI() {
     linhas[i].appendChild(td);
 
     for (var j = 0; j < cont; j++) {
-      //console.log(vertices[j]);
       var res = vertices[j].checkAresta(td.innerText);
 
       if (res != '*') {
@@ -370,6 +502,9 @@ canvas.addEventListener('mousedown', function (event) {
     }
   }
 
+  vertices.sort(function (a, b) {
+    return a.index - b.index;
+  });
   setMA();
   setMI();
   setLA();
@@ -381,6 +516,8 @@ btreset.addEventListener('click', function (event) {
   cont = 0;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   vertices = [];
+  tabcolor.innerHTML = "";
+  tabfila.innerHTML = "";
   setMA();
   setMI();
   setLA();
@@ -391,6 +528,7 @@ btreset.addEventListener('click', function (event) {
 btcolor.addEventListener('click', function (event) {
   var pop = document.getElementsByClassName('popup');
   pop[0].style.visibility = 'visible';
+  Coloring();
 });
 closepop.addEventListener('click', function (event) {
   var pop = document.getElementsByClassName('popup');

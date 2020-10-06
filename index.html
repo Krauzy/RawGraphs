@@ -6,7 +6,7 @@
     <title>RawGraphs</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap" rel="stylesheet">
-    <link rel='stylesheet' type='text/css' media='screen' href='./public/style.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='.public/style.css'>
 </head>
 <body>
     <header>
@@ -14,42 +14,23 @@
     </header>
     <main id="main">
         <div class="popup">
-            <table class="tab">
+            <button id="closepopup">X</button>
+            <table class="tab" id="fila">
                 <thead>
-                    <th>FILA</th>
+                    <th colspan="10">FILA</th>
                 </thead>
                 <tbody>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
                 </tbody>
             </table>
             <!---->
-            <table class="tab">
+            <table class="tab" id="colors">
                 <thead>
-                    <th>TABELA DE CORES</th>
+                    <th colspan="10">TABELA DE CORES</th>
                 </thead>
                 <tbody>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
-                    <tr></tr>
                 </tbody>
             </table>
-            <button id="closepopup">X</button>
+            
         </div>
         <div class="onoffswitch">
             <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" tabindex="0" checked>
